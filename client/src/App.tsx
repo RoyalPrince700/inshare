@@ -35,6 +35,7 @@ function App() {
   const [inputCode, setInputCode] = useState('');
   const [createdCode, setCreatedCode] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const pasteInputRef = useRef<HTMLDivElement>(null);
 
   // On mount, check for session code in URL or prompt
   useEffect(() => {
@@ -169,10 +170,23 @@ function App() {
     const onPaste = (e: ClipboardEvent) => {
       if (e.clipboardData?.files?.length) {
         handleFiles(e.clipboardData.files);
+      } else if (e.clipboardData?.items) {
+        for (let i = 0; i < e.clipboardData.items.length; i++) {
+          const item = e.clipboardData.items[i];
+          if (item.type.startsWith('image/')) {
+            const file = item.getAsFile();
+            if (file) {
+              handleFiles({ 0: file, length: 1, item: (n: number) => file } as unknown as FileList);
+            }
+          }
+        }
       }
     };
-    window.addEventListener('paste', onPaste);
-    return () => window.removeEventListener('paste', onPaste);
+    const node = pasteInputRef.current;
+    if (node) node.addEventListener('paste', onPaste as any);
+    return () => {
+      if (node) node.removeEventListener('paste', onPaste as any);
+    };
   }, [handleFiles]);
 
   // Copy session link
@@ -246,6 +260,25 @@ function App() {
         {error && <div className="error">{error}</div>}
       </header>
       <main>
+        <div
+          ref={pasteInputRef}
+          contentEditable
+          suppressContentEditableWarning
+          className="paste-area"
+          style={{
+            minHeight: 40,
+            border: '1px dashed #bfc9d8',
+            borderRadius: 8,
+            margin: '1em 0',
+            padding: '0.5em',
+            textAlign: 'center',
+            background: '#f3f6fa',
+            outline: 'none',
+          }}
+          onFocus={() => setStatus('Tap your keyboard clipboard icon to paste an image')}
+        >
+          Tap here and paste your screenshot (mobile: use keyboard clipboard)
+        </div>
         <div
           className={`dropzone ${isUploading ? 'uploading' : ''}`}
           onDrop={onDrop}

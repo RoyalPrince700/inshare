@@ -272,3 +272,8 @@ footer {
   margin-top: 0.5em;
   word-break: break-all;
 }
+
+.paste-area:focus {
+  border-color: #4b7bec;
+  background: #eaf1fa;
+}
