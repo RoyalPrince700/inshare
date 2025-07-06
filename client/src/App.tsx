@@ -176,7 +176,7 @@ function App() {
           if (item.type.startsWith('image/')) {
             const file = item.getAsFile();
             if (file) {
-              handleFiles({ 0: file, length: 1, item: (n: number) => file } as unknown as FileList);
+              handleFiles({ 0: file, length: 1, item: (_: number) => file } as unknown as FileList);
             }
           }
         }
@@ -316,6 +316,11 @@ function App() {
                     className="copy-btn"
                     onClick={async () => {
                       try {
+                        if (!file.data) {
+                          setError('No image data available');
+                          setTimeout(() => setError(''), 2000);
+                          return;
+                        }
                         const res = await fetch(file.data);
                         const blob = await res.blob();
                         await navigator.clipboard.write([
