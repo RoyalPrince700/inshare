@@ -9,6 +9,10 @@ function generateClientId() {
   return Math.random().toString(36).substring(2, 10);
 }
 
+function generate4DigitCode() {
+  return Math.floor(1000 + Math.random() * 9000).toString();
+}
+
 interface FileMeta {
   id: string;
   name: string;
@@ -26,31 +30,40 @@ function App() {
   const [status, setStatus] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
+  const [showCodePrompt, setShowCodePrompt] = useState(false);
+  const [inputCode, setInputCode] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Create or join session
+  // On mount, check for session code in URL or prompt
   useEffect(() => {
     let id = window.location.pathname.replace(/\//g, '');
     if (!id) {
-      fetch(`${API_URL}/session`).then(res => res.json()).then(data => {
-        setSessionId(data.sessionId);
-        window.history.replaceState({}, '', `/${data.sessionId}`);
-      });
+      setShowCodePrompt(true);
     } else {
       setSessionId(id);
     }
   }, []);
 
+  // Handle code submit
+  const handleCodeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (/^\d{4}$/.test(inputCode)) {
+      setSessionId(inputCode);
+      window.history.replaceState({}, '', `/${inputCode}`);
+      setShowCodePrompt(false);
+    } else {
+      setError('Please enter a valid 4-digit code');
+      setTimeout(() => setError(''), 2000);
+    }
+  };
+
   // Poll for new files every 3 seconds
   useEffect(() => {
     if (!sessionId) return;
-    
     let isMounted = true;
     let timeoutId: ReturnType<typeof setTimeout>;
-    
     const pollFiles = async () => {
       if (!isMounted) return;
-      
       try {
         const response = await fetch(`${API_URL}/session/${sessionId}`);
         if (response.ok) {
@@ -69,17 +82,11 @@ function App() {
           setStatus('Error');
         }
       }
-      
-      // Schedule next poll only if still mounted
       if (isMounted) {
         timeoutId = setTimeout(pollFiles, 3000);
       }
     };
-
-    // Start polling
     pollFiles();
-    
-    // Cleanup function
     return () => {
       isMounted = false;
       if (timeoutId) {
@@ -91,10 +98,8 @@ function App() {
   // Handle file upload
   const handleFiles = useCallback(async (fileList: FileList) => {
     if (!sessionId) return;
-    
     setIsUploading(true);
     setError('');
-    
     try {
       for (const file of Array.from(fileList)) {
         if (file.size > 5 * 1024 * 1024) {
@@ -102,13 +107,11 @@ function App() {
           setTimeout(() => setError(''), 3000);
           continue;
         }
-        
         const reader = new FileReader();
         const fileData = await new Promise<string>((resolve) => {
           reader.onload = () => resolve(reader.result as string);
           reader.readAsDataURL(file);
         });
-        
         const response = await fetch(`${API_URL}/session/${sessionId}/upload`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -120,7 +123,6 @@ function App() {
             clientId
           })
         });
-        
         if (!response.ok) {
           const errorData = await response.json();
           setError(errorData.error || 'Upload failed');
@@ -182,6 +184,27 @@ function App() {
 
   return (
     <div className="instantshare-root">
+      {showCodePrompt && (
+        <div className="code-modal">
+          <form onSubmit={handleCodeSubmit} className="code-form">
+            <h2>Enter 4-digit code</h2>
+            <input
+              type="text"
+              maxLength={4}
+              pattern="\d{4}"
+              value={inputCode}
+              onChange={e => setInputCode(e.target.value.replace(/[^0-9]/g, ''))}
+              autoFocus
+              className="code-input"
+            />
+            <button type="submit">Join</button>
+            <button type="button" onClick={() => {
+              const code = generate4DigitCode();
+              setInputCode(code);
+            }}>Random</button>
+          </form>
+        </div>
+      )}
       <header>
         <h1>InstantShare</h1>
         <div className="session-link">
