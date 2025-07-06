@@ -251,3 +251,24 @@ footer {
 .code-form button:hover {
   background: #c9d6e6;
 }
+
+.created-code-info {
+  margin-top: 1em;
+  text-align: center;
+  background: #f3f6fa;
+  border-radius: 8px;
+  padding: 1em 1.5em;
+  box-shadow: 0 1px 4px #0001;
+}
+.created-code {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 0.5em 0;
+  letter-spacing: 0.2em;
+}
+.created-link {
+  font-size: 1em;
+  color: #4b7bec;
+  margin-top: 0.5em;
+  word-break: break-all;
+}

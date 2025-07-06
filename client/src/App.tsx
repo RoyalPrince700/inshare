@@ -30,27 +30,46 @@ function App() {
   const [status, setStatus] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
-  const [showCodePrompt, setShowCodePrompt] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(false);
+  const [showJoinInput, setShowJoinInput] = useState(false);
   const [inputCode, setInputCode] = useState('');
+  const [createdCode, setCreatedCode] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // On mount, check for session code in URL or prompt
   useEffect(() => {
     let id = window.location.pathname.replace(/\//g, '');
     if (!id) {
-      setShowCodePrompt(true);
+      setShowPrompt(true);
     } else {
       setSessionId(id);
     }
   }, []);
 
-  // Handle code submit
+  // Handle create session
+  const handleCreate = () => {
+    const code = generate4DigitCode();
+    setCreatedCode(code);
+    setSessionId(code);
+    window.history.replaceState({}, '', `/${code}`);
+    setShowPrompt(false);
+    setShowJoinInput(false);
+  };
+
+  // Handle join session
+  const handleJoin = () => {
+    setShowJoinInput(true);
+    setInputCode('');
+  };
+
+  // Handle join code submit
   const handleCodeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (/^\d{4}$/.test(inputCode)) {
       setSessionId(inputCode);
       window.history.replaceState({}, '', `/${inputCode}`);
-      setShowCodePrompt(false);
+      setShowPrompt(false);
+      setShowJoinInput(false);
     } else {
       setError('Please enter a valid 4-digit code');
       setTimeout(() => setError(''), 2000);
@@ -184,25 +203,36 @@ function App() {
 
   return (
     <div className="instantshare-root">
-      {showCodePrompt && (
+      {showPrompt && (
         <div className="code-modal">
-          <form onSubmit={handleCodeSubmit} className="code-form">
-            <h2>Enter 4-digit code</h2>
-            <input
-              type="text"
-              maxLength={4}
-              pattern="\d{4}"
-              value={inputCode}
-              onChange={e => setInputCode(e.target.value.replace(/[^0-9]/g, ''))}
-              autoFocus
-              className="code-input"
-            />
-            <button type="submit">Join</button>
-            <button type="button" onClick={() => {
-              const code = generate4DigitCode();
-              setInputCode(code);
-            }}>Random</button>
-          </form>
+          {!showJoinInput ? (
+            <div className="code-form">
+              <h2>Start or Join a Session</h2>
+              <button onClick={handleCreate}>Create Session</button>
+              <button onClick={handleJoin}>Join Session</button>
+            </div>
+          ) : (
+            <form onSubmit={handleCodeSubmit} className="code-form">
+              <h2>Enter 4-digit code</h2>
+              <input
+                type="text"
+                maxLength={4}
+                pattern="\d{4}"
+                value={inputCode}
+                onChange={e => setInputCode(e.target.value.replace(/[^0-9]/g, ''))}
+                autoFocus
+                className="code-input"
+              />
+              <button type="submit">Join</button>
+            </form>
+          )}
+          {createdCode && (
+            <div className="created-code-info">
+              <div>Share this code with others:</div>
+              <div className="created-code">{createdCode}</div>
+              <div className="created-link">{window.location.origin + '/' + createdCode}</div>
+            </div>
+          )}
         </div>
       )}
       <header>
