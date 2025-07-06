@@ -3,7 +3,7 @@ import './App.css';
 
 const API_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:3001/api'
-  : `/api`;
+  : 'https://inshare-backend-c9p8.onrender.com/api';
 
 function generateClientId() {
   return Math.random().toString(36).substring(2, 10);
