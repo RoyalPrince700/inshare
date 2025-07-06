@@ -9,10 +9,6 @@ function generateClientId() {
   return Math.random().toString(36).substring(2, 10);
 }
 
-function generate4DigitCode() {
-  return Math.floor(1000 + Math.random() * 9000).toString();
-}
-
 interface FileMeta {
   id: string;
   name: string;
