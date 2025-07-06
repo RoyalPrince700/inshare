@@ -1,121 +1,91 @@
 # InstantShare Web
 
-A lightweight, real-time file-sharing website that allows users to instantly transfer screenshots, images, and documents (up to 5MB) between their phone and PC without requiring logins, apps, or external cloud storage.
+A real-time, login-free, bi-directional file sharing app for screenshots and documents (up to 5MB) between phone and PC, with no permanent storage and easy session links.
 
-## ✨ Features
+## Features
 
-- **Instant Pasting** – Take a screenshot on your phone, paste (Ctrl+V) into the browser, and it appears instantly on your PC (and vice versa)
-- **Drag & Drop Support** – Easily upload files from either device
-- **Bi-Directional Sync** – Send files from phone → PC or PC → phone in real time
-- **No Storage** – Files are temporarily held in memory (not saved permanently)
-- **Short-Link Access** – Easy-to-remember URLs for quick sharing
-- **5MB File Limit** – Optimized for quick sharing of screenshots and small documents
-- **Mobile-Friendly** – Works perfectly on both desktop and mobile devices
+- 🚀 **Real-time file sharing** - Instant file transfer between devices
+- 📱 **Mobile-friendly** - Works seamlessly on phones and PCs
+- 🔗 **Session-based** - Join with a simple 4-digit code
+- 📋 **Multiple input methods** - Drag & drop, file picker, clipboard paste
+- 🖼️ **Image preview** - See images before copying
+- 📋 **Copy to clipboard** - One-click copy for images
+- 🎯 **No login required** - Start sharing immediately
+- 💾 **No permanent storage** - Files are temporary and secure
 
-## 🚀 How It Works
+## Quick Start
 
-1. Open the website on both devices (phone & PC)
-2. Paste a screenshot (phone) or drag & drop a file (PC)
-3. The file instantly appears on the other device for viewing/downloading
-4. Files expire when the session ends (no permanent storage)
+### Prerequisites
+- Node.js (v16 or higher)
+- npm
 
-## 🛠️ Tech Stack
+### Installation
 
-- **Frontend**: React + TypeScript + Vite
-- **Backend**: Node.js + Express
-- **Deployment**: Vercel (Frontend) + Render/Railway (Backend)
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd share
+   ```
 
-## 📁 Project Structure
+2. **Install all dependencies**
+   ```bash
+   npm run install:all
+   ```
+
+### Development
+
+**Run both frontend and backend in development mode:**
+```bash
+npm run dev
+```
+
+This will start:
+- Frontend: http://localhost:5173
+- Backend: http://localhost:3000
+
+### Production
+
+**Build and start the production version:**
+```bash
+npm run build
+npm start
+```
+
+### Individual Commands
+
+- **Frontend only:** `npm run dev:client`
+- **Backend only:** `npm run dev:server`
+- **Build frontend:** `npm run build`
+
+## How to Use
+
+1. **Create a session** - Click "Create Session" to get a 4-digit code
+2. **Join from another device** - Enter the same code on your phone/PC
+3. **Share files** - Drag & drop, paste from clipboard, or use the file picker
+4. **View and copy** - See image previews and copy files to clipboard
+
+## Tech Stack
+
+- **Frontend:** React + TypeScript + Vite
+- **Backend:** Node.js + Express
+- **Deployment:** Vercel (frontend) + Render (backend)
+
+## Project Structure
 
 ```
-/share
+share/
 ├── client/          # React frontend
-│   ├── src/
-│   │   ├── App.tsx  # Main component
-│   │   └── App.css  # Styles
-│   └── package.json
 ├── server/          # Node.js backend
-│   ├── index.js     # Express server
-│   └── package.json
-└── README.md
+├── package.json     # Root package with scripts
+└── README.md        # This file
 ```
 
-## 🚀 Quick Start
+## Deployment
 
-### Local Development
+The app is deployed at:
+- **Frontend:** https://your-app.vercel.app
+- **Backend:** https://your-app.onrender.com
 
-1. **Start the backend server:**
-   ```bash
-   cd server
-   npm install
-   npm start
-   ```
+## License
 
-2. **Start the frontend:**
-   ```bash
-   cd client
-   npm install
-   npm run dev
-   ```
-
-3. **Open your browser:**
-   - Frontend: http://localhost:5173
-   - Backend: http://localhost:3001
-
-### Deployment
-
-#### Frontend (Vercel)
-1. Push code to GitHub
-2. Go to [vercel.com](https://vercel.com)
-3. Import your repository
-4. Set root directory to `client`
-5. Deploy!
-
-#### Backend (Render/Railway)
-1. Go to [render.com](https://render.com) or [railway.app](https://railway.app)
-2. Create new Web Service
-3. Connect your repository
-4. Set root directory to `server`
-5. Set build command: `npm install`
-6. Set start command: `node index.js`
-7. Deploy!
-
-## 📱 Usage
-
-1. **Create a session**: Visit the website to get a unique session link
-2. **Share the link**: Copy and share the session URL with your other device
-3. **Upload files**: 
-   - Drag & drop files onto the dropzone
-   - Paste files (Ctrl+V) from clipboard
-   - Click the dropzone to select files
-4. **Download files**: Click the download button next to any file
-5. **Real-time sync**: Files appear on all connected devices within 3 seconds
-
-## 🔧 API Endpoints
-
-- `GET /api/session` - Create new session
-- `GET /api/session/:sessionId` - Get session files
-- `POST /api/session/:sessionId/upload` - Upload file
-- `GET /api/session/:sessionId/file/:fileId` - Download file
-
-## 🎯 Use Cases
-
-- Quickly transfer screenshots during work
-- Share small documents (PDF, DOCX) without email/cloud delays
-- Replace Bluetooth/USB transfers with a faster, wireless solution
-- Temporary file sharing between personal devices
-
-## ⚠️ Limitations
-
-- Max file size: 5MB (to ensure speed)
-- Requires both devices to be online simultaneously
-- No long-term file storage (purely for instant transfer)
-- Files are stored in memory and lost when server restarts
-
-## 🤝 Contributing
-
-Feel free to submit issues and enhancement requests!
-
-## 📄 License
-
-MIT License - feel free to use this project for your own needs. 
+ISC 

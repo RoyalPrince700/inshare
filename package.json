@@ -1,0 +1,23 @@
+{
+  "name": "instantshare-web",
+  "version": "1.0.0",
+  "description": "InstantShare Web - Real-time file sharing between devices",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "start": "concurrently \"npm run start:server\" \"npm run start:client\"",
+    "start:client": "cd client && npm run preview",
+    "start:server": "cd server && npm start",
+    "build": "cd client && npm run build",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "clean": "rm -rf node_modules client/node_modules server/node_modules"
+  },
+  "keywords": ["file-sharing", "real-time", "react", "nodejs"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+} 
