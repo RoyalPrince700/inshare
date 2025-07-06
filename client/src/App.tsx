@@ -48,13 +48,29 @@ function App() {
   }, []);
 
   // Handle create session
-  const handleCreate = () => {
-    const code = generate4DigitCode();
-    setCreatedCode(code);
-    setSessionId(code);
-    window.history.replaceState({}, '', `/${code}`);
-    setShowPrompt(false);
-    setShowJoinInput(false);
+  const handleCreate = async () => {
+    setError("");
+    setStatus("Creating session...");
+    try {
+      const response = await fetch(`${API_URL}/session`);
+      if (response.ok) {
+        const data = await response.json();
+        setCreatedCode(data.sessionId);
+        setSessionId(data.sessionId);
+        window.history.replaceState({}, '', `/${data.sessionId}`);
+        setShowPrompt(false);
+        setShowJoinInput(false);
+        setStatus("Session created!");
+      } else {
+        setError("Failed to create session");
+        setTimeout(() => setError(''), 2000);
+        setStatus("");
+      }
+    } catch (err) {
+      setError("Failed to create session");
+      setTimeout(() => setError(''), 2000);
+      setStatus("");
+    }
   };
 
   // Handle join session
