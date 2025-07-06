@@ -9,6 +9,11 @@ function generateClientId() {
   return Math.random().toString(36).substring(2, 10);
 }
 
+function generateRepeatedDigitCode() {
+  const digit = Math.floor(Math.random() * 9) + 1; // 1-9
+  return String(digit).repeat(4);
+}
+
 interface FileMeta {
   id: string;
   name: string;
@@ -47,26 +52,43 @@ function App() {
   const handleCreate = async () => {
     setError("");
     setStatus("Creating session...");
-    try {
-      const response = await fetch(`${API_URL}/session`);
-      if (response.ok) {
-        const data = await response.json();
-        setCreatedCode(data.sessionId);
-        setSessionId(data.sessionId);
-        window.history.replaceState({}, '', `/${data.sessionId}`);
-        setShowPrompt(false);
-        setShowJoinInput(false);
-        setStatus("Session created!");
-      } else {
+    let attempts = 0;
+    while (attempts < 10) {
+      const code = generateRepeatedDigitCode();
+      try {
+        const response = await fetch(`${API_URL}/session`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: code })
+        });
+        if (response.ok) {
+          setCreatedCode(code);
+          setSessionId(code);
+          window.history.replaceState({}, '', `/${code}`);
+          setShowPrompt(false);
+          setShowJoinInput(false);
+          setStatus("Session created!");
+          return;
+        } else if (response.status === 409) {
+          // Code taken, try another
+          attempts++;
+          continue;
+        } else {
+          setError("Failed to create session");
+          setTimeout(() => setError(''), 2000);
+          setStatus("");
+          return;
+        }
+      } catch (err) {
         setError("Failed to create session");
         setTimeout(() => setError(''), 2000);
         setStatus("");
+        return;
       }
-    } catch (err) {
-      setError("Failed to create session");
-      setTimeout(() => setError(''), 2000);
-      setStatus("");
     }
+    setError("Could not generate a unique session code. Please try again.");
+    setTimeout(() => setError(''), 2000);
+    setStatus("");
   };
 
   // Handle join session
@@ -78,13 +100,13 @@ function App() {
   // Handle join code submit
   const handleCodeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (/^\d{4}$/.test(inputCode)) {
+    if (/^([0-9])\1{3}$/.test(inputCode)) {
       setSessionId(inputCode);
       window.history.replaceState({}, '', `/${inputCode}`);
       setShowPrompt(false);
       setShowJoinInput(false);
     } else {
-      setError('Please enter a valid 4-digit code');
+      setError('Please enter a valid 4-digit code (e.g. 4444)');
       setTimeout(() => setError(''), 2000);
     }
   };
@@ -239,11 +261,12 @@ function App() {
             </div>
           ) : (
             <form onSubmit={handleCodeSubmit} className="code-form">
-              <h2>Enter 4-digit code</h2>
+              <h2>Enter 4-digit session code</h2>
               <input
                 type="text"
                 maxLength={4}
-                pattern="\d{4}"
+                pattern="([0-9])\1{3}"
+                placeholder="e.g. 4444"
                 value={inputCode}
                 onChange={e => setInputCode(e.target.value.replace(/[^0-9]/g, ''))}
                 autoFocus

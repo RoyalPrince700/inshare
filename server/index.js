@@ -42,6 +42,22 @@ app.get('/api/session', (req, res) => {
     res.json({ sessionId });
 });
 
+// New: Create session with custom 4-repeated-digit code
+app.post('/api/session', (req, res) => {
+    const { sessionId } = req.body;
+    if (!sessionId || !/^([0-9])\1{3}$/.test(sessionId)) {
+        return res.status(400).json({ error: 'Session code must be 4 repeated digits (e.g., 4444)' });
+    }
+    if (sessions.has(sessionId)) {
+        return res.status(409).json({ error: 'Session code already in use' });
+    }
+    sessions.set(sessionId, {
+        files: [],
+        lastActivity: Date.now()
+    });
+    res.json({ sessionId });
+});
+
 app.get('/api/session/:sessionId', (req, res) => {
     const { sessionId } = req.params;
     const session = sessions.get(sessionId);
