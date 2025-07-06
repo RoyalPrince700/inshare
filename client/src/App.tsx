@@ -260,25 +260,27 @@ function App() {
         {error && <div className="error">{error}</div>}
       </header>
       <main>
+        {/* Paste area for mobile clipboard images */}
         <div
           ref={pasteInputRef}
           contentEditable
           suppressContentEditableWarning
           className="paste-area"
-          style={{
-            minHeight: 40,
-            border: '1px dashed #bfc9d8',
-            borderRadius: 8,
-            margin: '1em 0',
-            padding: '0.5em',
-            textAlign: 'center',
-            background: '#f3f6fa',
-            outline: 'none',
-          }}
+          tabIndex={0}
           onFocus={() => setStatus('Tap your keyboard clipboard icon to paste an image')}
         >
           Tap here and paste your screenshot (mobile: use keyboard clipboard)
         </div>
+        {/* Connection spinner while waiting for files */}
+        {status === 'Waiting for files...' && (
+          <div className="connection-spinner">
+            <div className="spinner"></div>
+            <div>Waiting for connection...</div>
+            <div style={{ fontSize: '0.95em', color: '#888', marginTop: '0.5em' }}>
+              Open this session on another device to connect.
+            </div>
+          </div>
+        )}
         <div
           className={`dropzone ${isUploading ? 'uploading' : ''}`}
           onDrop={onDrop}
@@ -302,6 +304,35 @@ function App() {
             <li key={file.id}>
               <span>{file.name}</span>
               <span className="filesize">{(file.size/1024).toFixed(1)} KB</span>
+              {file.type.startsWith('image/') && (
+                <>
+                  <img
+                    src={file.data}
+                    alt={file.name}
+                    className="preview-thumb"
+                    style={{ maxWidth: 60, maxHeight: 60, margin: '0 0.5em', borderRadius: 4, border: '1px solid #eee' }}
+                  />
+                  <button
+                    className="copy-btn"
+                    onClick={async () => {
+                      try {
+                        const res = await fetch(file.data);
+                        const blob = await res.blob();
+                        await navigator.clipboard.write([
+                          new window.ClipboardItem({ [file.type]: blob })
+                        ]);
+                        setStatus('Image copied!');
+                        setTimeout(() => setStatus('Connected'), 1000);
+                      } catch {
+                        setError('Copy failed');
+                        setTimeout(() => setError(''), 2000);
+                      }
+                    }}
+                  >
+                    Copy
+                  </button>
+                </>
+              )}
               <button
                 onClick={() => downloadFile(file.id, file.name)}
                 className="download-btn"
