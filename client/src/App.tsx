@@ -46,7 +46,7 @@ function App() {
     if (!sessionId) return;
     
     let isMounted = true;
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: ReturnType<typeof setTimeout>;
     
     const pollFiles = async () => {
       if (!isMounted) return;
