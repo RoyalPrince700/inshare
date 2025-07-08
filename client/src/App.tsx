@@ -37,6 +37,7 @@ function App() {
   const [createdCode, setCreatedCode] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pasteInputRef = useRef<HTMLDivElement>(null);
+  const [imageUrls, setImageUrls] = useState<{ [id: string]: string }>({});
 
   // On mount, check for session code in URL or prompt
   useEffect(() => {
@@ -223,6 +224,30 @@ function App() {
     };
   }, [handleFiles]);
 
+  // Fetch image blobs and create object URLs when files change
+  useEffect(() => {
+    const newImageUrls: { [id: string]: string } = {};
+    const fetchImages = async () => {
+      await Promise.all(files.map(async (file) => {
+        if (file.type.startsWith('image/')) {
+          const res = await fetch(`${API_URL}/session/${sessionId}/file/${file.id}`);
+          if (res.ok) {
+            const blob = await res.blob();
+            newImageUrls[file.id] = URL.createObjectURL(blob);
+          }
+        }
+      }));
+      setImageUrls(newImageUrls);
+    };
+    if (files.length > 0 && sessionId) fetchImages();
+    else setImageUrls({});
+    // Cleanup old object URLs
+    return () => {
+      Object.values(imageUrls).forEach(url => URL.revokeObjectURL(url));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [files, sessionId]);
+
   // Copy session link
   const copyLink = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -235,13 +260,15 @@ function App() {
     try {
       const response = await fetch(`${API_URL}/session/${sessionId}/file/${fileId}`);
       if (response.ok) {
-        const data = await response.json();
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
-        link.href = data.file.data;
+        link.href = url;
         link.download = fileName;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
       }
     } catch (err) {
       setError('Download failed');
@@ -342,7 +369,7 @@ function App() {
               {file.type.startsWith('image/') && (
                 <>
                   <img
-                    src={file.data}
+                    src={imageUrls[file.id]}
                     alt={file.name}
                     className="preview-thumb"
                     style={{ maxWidth: 60, maxHeight: 60, margin: '0 0.5em', borderRadius: 4, border: '1px solid #eee' }}
@@ -351,12 +378,7 @@ function App() {
                     className="copy-btn"
                     onClick={async () => {
                       try {
-                        if (!file.data) {
-                          setError('No image data available');
-                          setTimeout(() => setError(''), 2000);
-                          return;
-                        }
-                        const res = await fetch(file.data);
+                        const res = await fetch(`${API_URL}/session/${sessionId}/file/${file.id}`);
                         const blob = await res.blob();
                         await navigator.clipboard.write([
                           new window.ClipboardItem({ [file.type]: blob })
