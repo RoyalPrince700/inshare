@@ -147,10 +147,12 @@ app.get('/api/session/:sessionId/file/:fileId', (req, res) => {
         const mimeType = match[1];
         const base64Data = match[2];
         res.set('Content-Type', mimeType);
+        res.set('Content-Disposition', `attachment; filename="${file.name}"`);
         res.send(Buffer.from(base64Data, 'base64'));
     } else {
         // Fallback: send as octet-stream
         res.set('Content-Type', file.type || 'application/octet-stream');
+        res.set('Content-Disposition', `attachment; filename="${file.name}"`);
         res.send(file.data);
     }
 });
