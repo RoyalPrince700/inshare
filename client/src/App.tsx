@@ -229,7 +229,7 @@ function App() {
     const newImageUrls: { [id: string]: string } = {};
     const fetchImages = async () => {
       await Promise.all(files.map(async (file) => {
-        if (file.type.startsWith('image/')) {
+        if (typeof file.type === 'string' && file.type.startsWith('image/')) {
           const res = await fetch(`${API_URL}/session/${sessionId}/file/${file.id}`);
           if (res.ok) {
             const blob = await res.blob();
@@ -365,8 +365,12 @@ function App() {
           {files.map(file => (
             <li key={file.id}>
               <span>{file.name}</span>
-              <span className="filesize">{(file.size/1024).toFixed(1)} KB</span>
-              {file.type.startsWith('image/') && (
+              <span className="filesize">
+                {typeof file.size === 'number' && file.size > 0
+                  ? (file.size/1024).toFixed(1) + ' KB'
+                  : 'Unknown size'}
+              </span>
+              {typeof file.type === 'string' && file.type.startsWith('image/') && (
                 <>
                   <img
                     src={imageUrls[file.id]}
