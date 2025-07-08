@@ -327,3 +327,21 @@ footer {
 .copy-btn:hover {
   background: #c9d6e6;
 }
+
+.file-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  margin-left: 0.5em;
+}
+.file-name {
+  max-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+}
+.file-list li {
+  align-items: flex-start;
+}

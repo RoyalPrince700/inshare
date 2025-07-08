@@ -355,7 +355,12 @@ function App() {
         <ul className="file-list">
           {files.map(file => (
             <li key={file.id}>
-              <span>{file.name}</span>
+              <span
+                className="file-name"
+                title={file.name}
+              >
+                {file.name.length > 5 ? file.name.slice(0, 5) + '...' : file.name}
+              </span>
               <span className="filesize">
                 {typeof file.size === 'number' && file.size > 0
                   ? (file.size/1024).toFixed(1) + ' KB'
@@ -373,39 +378,41 @@ function App() {
                       setPreviewImageName(file.name);
                     }}
                   />
-                  <button
-                    className="copy-btn"
-                    onClick={async () => {
-                      try {
-                        if (!navigator.clipboard || !window.ClipboardItem) {
-                          setError('Clipboard image copy not supported in this browser');
-                          setTimeout(() => setError(''), 2000);
-                          return;
-                        }
-                        const res = await fetch(`${API_URL}/session/${sessionId}/file/${file.id}`);
-                        if (!res.ok) throw new Error('Failed to fetch image');
-                        const blob = await res.blob();
-                        await navigator.clipboard.write([
-                          new window.ClipboardItem({ [file.type]: blob })
-                        ]);
-                        setStatus('Image copied!');
-                        setTimeout(() => setStatus('Connected'), 1000);
-                      } catch (err) {
-                        setError('Copy failed');
-                        setTimeout(() => setError(''), 2000);
-                      }
-                    }}
-                  >
-                    Copy
-                  </button>
                 </>
               )}
-              <button
-                onClick={() => downloadFile(file.id, file.name)}
-                className="download-btn"
-              >
-                Download
-              </button>
+              <div className="file-btn-group">
+                <button
+                  className="copy-btn"
+                  onClick={async () => {
+                    try {
+                      if (!navigator.clipboard || !window.ClipboardItem) {
+                        setError('Clipboard image copy not supported in this browser');
+                        setTimeout(() => setError(''), 2000);
+                        return;
+                      }
+                      const res = await fetch(`${API_URL}/session/${sessionId}/file/${file.id}`);
+                      if (!res.ok) throw new Error('Failed to fetch image');
+                      const blob = await res.blob();
+                      await navigator.clipboard.write([
+                        new window.ClipboardItem({ [file.type]: blob })
+                      ]);
+                      setStatus('Image copied!');
+                      setTimeout(() => setStatus('Connected'), 1000);
+                    } catch (err) {
+                      setError('Copy failed');
+                      setTimeout(() => setError(''), 2000);
+                    }
+                  }}
+                >
+                  Copy
+                </button>
+                <button
+                  onClick={() => downloadFile(file.id, file.name)}
+                  className="download-btn"
+                >
+                  Download
+                </button>
+              </div>
             </li>
           ))}
         </ul>
