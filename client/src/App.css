@@ -203,6 +203,72 @@ footer {
   header h1 {
     font-size: 1.3rem;
   }
+  .sendora-card {
+    max-width: 98vw;
+    padding: 1.2rem 0.5rem;
+    border-radius: 18px;
+  }
+  .sendora-logo-large {
+    width: 48px;
+    height: 48px;
+  }
+  .sendora-dropzone {
+    min-height: 120px;
+    padding: 1.2em 0.5em 0.7em 0.5em;
+    font-size: 1em;
+  }
+  .file-list li {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.7em;
+    padding: 1em 0.7em;
+    min-width: 0;
+  }
+  .file-btn-group {
+    flex-direction: row;
+    gap: 0.7em;
+    margin-left: 0;
+    margin-top: 0.5em;
+  }
+  .copy-btn, .download-btn {
+    width: 100%;
+    min-width: 0;
+    font-size: 1em;
+    padding: 0.7em 0;
+  }
+  .preview-thumb {
+    max-width: 90vw !important;
+    max-height: 40vw !important;
+    margin: 0.5em auto;
+    display: block;
+  }
+  .file-name {
+    max-width: 90vw;
+    font-size: 1em;
+  }
+  .created-code {
+    font-size: 1.3em;
+  }
+  .image-modal-overlay img {
+    max-width: 95vw !important;
+    max-height: 60vh !important;
+  }
+  .image-modal-overlay button[aria-label="Close preview"] {
+    top: 4px !important;
+    right: 4px !important;
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 18px !important;
+  }
+  .join-form {
+    flex-direction: column;
+    gap: 0.5em;
+  }
+  .join-input {
+    width: 100%;
+    font-size: 1em;
+    margin-right: 0;
+  }
 }
 
 .code-modal {
