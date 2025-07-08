@@ -141,8 +141,18 @@ app.get('/api/session/:sessionId/file/:fileId', (req, res) => {
     if (!file) {
         return res.status(404).json({ error: 'File not found' });
     }
-    
-    res.json({ file });
+    // If file.data is a data URL (e.g., data:image/jpeg;base64,...), extract base64 part
+    const match = /^data:([^;]+);base64,(.*)$/.exec(file.data);
+    if (match) {
+        const mimeType = match[1];
+        const base64Data = match[2];
+        res.set('Content-Type', mimeType);
+        res.send(Buffer.from(base64Data, 'base64'));
+    } else {
+        // Fallback: send as octet-stream
+        res.set('Content-Type', file.type || 'application/octet-stream');
+        res.send(file.data);
+    }
 });
 
 // Serve React app for all other routes
