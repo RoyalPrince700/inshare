@@ -72,7 +72,6 @@ app.get('/api/session/:sessionId', (req, res) => {
                 name: file.name,
                 type: file.type,
                 size: file.size,
-                uploadedBy: file.uploadedBy,
                 uploadedAt: file.uploadedAt
             }))
         });
@@ -83,47 +82,51 @@ app.get('/api/session/:sessionId', (req, res) => {
 
 app.post('/api/session/:sessionId/upload', (req, res) => {
     const { sessionId } = req.params;
-    const { fileName, fileType, fileSize, fileData, clientId } = req.body;
-    
+    let { fileName, fileType, fileSize, fileData, clientId } = req.body;
+
+    // Validate and fallback for fileType and fileSize
+    if (!fileType) fileType = 'application/octet-stream';
+    if (!fileSize || isNaN(Number(fileSize))) fileSize = 0;
+    else fileSize = Number(fileSize);
+
     if (!sessions.has(sessionId)) {
         sessions.set(sessionId, {
             files: [],
             lastActivity: Date.now()
         });
     }
-    
+
     const session = sessions.get(sessionId);
-    
+
     // Check file size
     if (fileSize > MAX_FILE_SIZE) {
         return res.status(400).json({ error: 'File size exceeds 5MB limit' });
     }
-    
+
     // Create file object
     const fileObj = {
         id: Math.random().toString(36).substring(2, 15),
         name: fileName,
-        type: fileType || 'application/octet-stream',
+        type: fileType,
         size: fileSize,
         data: fileData,
         uploadedBy: clientId,
         uploadedAt: Date.now()
     };
-    
+
     // Add to session files
     session.files.push(fileObj);
     session.lastActivity = Date.now();
-    
+
     console.log(`File uploaded to session ${sessionId}: ${fileObj.name}`);
-    
-    res.json({ 
-        success: true, 
+
+    res.json({
+        success: true,
         file: {
             id: fileObj.id,
             name: fileObj.name,
             type: fileObj.type,
             size: fileObj.size,
-            uploadedBy: fileObj.uploadedBy,
             uploadedAt: fileObj.uploadedAt
         }
     });
