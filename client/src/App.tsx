@@ -38,6 +38,8 @@ function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pasteInputRef = useRef<HTMLDivElement>(null);
   const [imageUrls, setImageUrls] = useState<{ [id: string]: string }>({});
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+  const [previewImageName, setPreviewImageName] = useState<string | null>(null);
 
   // On mount, check for session code in URL or prompt
   useEffect(() => {
@@ -322,17 +324,6 @@ function App() {
         {error && <div className="error">{error}</div>}
       </header>
       <main>
-        {/* Paste area for mobile clipboard images */}
-        <div
-          ref={pasteInputRef}
-          contentEditable
-          suppressContentEditableWarning
-          className="paste-area"
-          tabIndex={0}
-          onFocus={() => setStatus('Tap your keyboard clipboard icon to paste an image')}
-        >
-          Tap here and paste your screenshot (mobile: use keyboard clipboard)
-        </div>
         {/* Connection spinner while waiting for files */}
         {status === 'Waiting for files...' && (
           <div className="connection-spinner">
@@ -376,7 +367,11 @@ function App() {
                     src={imageUrls[file.id]}
                     alt={file.name}
                     className="preview-thumb"
-                    style={{ maxWidth: 60, maxHeight: 60, margin: '0 0.5em', borderRadius: 4, border: '1px solid #eee' }}
+                    style={{ maxWidth: 100, maxHeight: 100, margin: '0 0.5em', borderRadius: 8, border: '1.5px solid #e6f0fa', cursor: 'pointer', boxShadow: '0 2px 8px #e6f0fa' }}
+                    onClick={() => {
+                      setPreviewImageUrl(imageUrls[file.id]);
+                      setPreviewImageName(file.name);
+                    }}
                   />
                   <button
                     className="copy-btn"
@@ -415,6 +410,44 @@ function App() {
           ))}
         </ul>
       </main>
+      {/* Image preview modal */}
+      {previewImageUrl && (
+        <div
+          className="image-modal-overlay"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}
+          onClick={() => setPreviewImageUrl(null)}
+        >
+          <div
+            style={{ position: 'relative', background: 'white', borderRadius: 12, padding: 20, maxWidth: '90vw', maxHeight: '90vh', boxShadow: '0 2px 16px rgba(0,0,0,0.3)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <img
+              src={previewImageUrl}
+              alt={previewImageName || ''}
+              style={{ maxWidth: '80vw', maxHeight: '80vh', borderRadius: 10, display: 'block', margin: '0 auto' }}
+            />
+            <div style={{ textAlign: 'center', marginTop: 12, fontWeight: 500 }}>{previewImageName}</div>
+            <button
+              onClick={() => setPreviewImageUrl(null)}
+              style={{ position: 'absolute', top: 12, right: 12, background: '#eee', border: 'none', borderRadius: '50%', width: 36, height: 36, fontSize: 22, cursor: 'pointer' }}
+              aria-label="Close preview"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
       <footer>
         <div>Open this link on your phone or PC to sync files.</div>
       </footer>
