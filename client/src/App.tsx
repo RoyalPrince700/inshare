@@ -353,7 +353,7 @@ function App() {
           <div className="hint">(Max 5MB, updates every 3s)</div>
         </div>
         <ul className="file-list">
-          {files.map(file => (
+          {[...files].reverse().map(file => (
             <li key={file.id}>
               <span
                 className="file-name"
