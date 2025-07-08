@@ -103,7 +103,7 @@ app.post('/api/session/:sessionId/upload', (req, res) => {
     const fileObj = {
         id: Math.random().toString(36).substring(2, 15),
         name: fileName,
-        type: fileType,
+        type: fileType || 'application/octet-stream',
         size: fileSize,
         data: fileData,
         uploadedBy: clientId,
