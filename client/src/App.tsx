@@ -382,14 +382,20 @@ function App() {
                     className="copy-btn"
                     onClick={async () => {
                       try {
+                        if (!navigator.clipboard || !window.ClipboardItem) {
+                          setError('Clipboard image copy not supported in this browser');
+                          setTimeout(() => setError(''), 2000);
+                          return;
+                        }
                         const res = await fetch(`${API_URL}/session/${sessionId}/file/${file.id}`);
+                        if (!res.ok) throw new Error('Failed to fetch image');
                         const blob = await res.blob();
                         await navigator.clipboard.write([
                           new window.ClipboardItem({ [file.type]: blob })
                         ]);
                         setStatus('Image copied!');
                         setTimeout(() => setStatus('Connected'), 1000);
-                      } catch {
+                      } catch (err) {
                         setError('Copy failed');
                         setTimeout(() => setError(''), 2000);
                       }
